@@ -66,7 +66,6 @@ if (DEV) {
   connectToHMR(100, 10000)
     .then((ws) => {
       console.log('Connected to [esm-hmr]')
-      const reloadExtensions = ['.ts', '.tsx', '.css', '.sass', '.scss']
       const srcDir = path.resolve(process.cwd(), 'src')
       const serverDir = path.resolve(process.cwd(), 'server/middleware')
       const clientWatcher = chokidar.watch(`${srcDir}/**/*`)
@@ -81,16 +80,7 @@ if (DEV) {
           fg.sync(`${serverDir}/**/*`).forEach((file) => clear(file))
         }
         if (parsed.type === 'update') {
-          const split = parsed.url.split('/_dist_/').join('')
-          const { name, dir } = path.parse(path.resolve(srcDir, split))
-          const hotRegEx = new RegExp(`${dir}/${name}`)
-
-          clearSet.forEach((item) => {
-            if (hotRegEx.test(item)) {
-              return clearAllButExternals(item)
-            }
-          })
-
+          clearSet.forEach((item) => clearAllButExternals(item))
           clearSet.clear()
         }
       })

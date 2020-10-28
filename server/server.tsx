@@ -61,31 +61,37 @@ if (DEV) {
     })
   }
 
+  const clearSet = new Set<string>()
+
   connectToHMR(100, 10000)
     .then((ws) => {
       console.log('Connected to [esm-hmr]')
       const reloadExtensions = ['.ts', '.tsx', '.css', '.sass', '.scss']
       const srcDir = path.resolve(process.cwd(), 'src')
       const serverDir = path.resolve(process.cwd(), 'server/middleware')
-      const watcher = chokidar.watch([
-        `${path.resolve(process.cwd(), 'server/middleware')}/**/*`,
-      ])
-      watcher.on('change', (path) => {
-        clearSingle(path)
-      })
+      const clientWatcher = chokidar.watch(`${srcDir}/**/*`)
+      const serverWatcher = chokidar.watch(`${serverDir}/**/*`)
+      clientWatcher.on('change', (path) => clearSet.add(path))
+      serverWatcher.on('change', (path) => clearAllButExternals(path))
       ws.on('error', (error) => console.log(error))
       ws.on('message', (data: string) => {
         const parsed = JSON.parse(data)
         if (parsed.type === 'reload') {
+          // Usually means client.tsx changed, but we'll reload just in case
           fg.sync(`${serverDir}/**/*`).forEach((file) => clear(file))
         }
         if (parsed.type === 'update') {
           const split = parsed.url.split('/_dist_/').join('')
           const { name, dir } = path.parse(path.resolve(srcDir, split))
-          reloadExtensions.forEach((ext) => {
-            const match = path.resolve(dir, name + ext)
-            clearAllButExternals(match)
+          const hotRegEx = new RegExp(`${dir}/${name}`)
+
+          clearSet.forEach((item) => {
+            if (hotRegEx.test(item)) {
+              return clearAllButExternals(item)
+            }
           })
+
+          clearSet.clear()
         }
       })
     })

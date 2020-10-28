@@ -6,6 +6,7 @@ import './App.css'
 
 export const App = () => (
   <h1>
+    Nanissss
     <Hello />
   </h1>
 )

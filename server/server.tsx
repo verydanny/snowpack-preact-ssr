@@ -61,7 +61,7 @@ if (DEV) {
         }
       })
 
-      fg.sync(`${serverDir}/**/*`).forEach((file) => clearModule(file))
+      fg.sync(`${serverDir}/**/*`).forEach((file) => clearModule.single(file))
     }
   })
 }

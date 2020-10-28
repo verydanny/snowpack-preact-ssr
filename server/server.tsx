@@ -4,18 +4,23 @@ import http from 'http'
 
 import fg from 'fast-glob'
 import chokidar from 'chokidar'
-import clearModule from 'clear-module'
 import WebSocket from 'ws'
 
 import { SERVER_PORT, DEV_SERVER_PORT } from '../src/const'
+
+import { clearSingle, clear, clearAllButExternals } from './utils/clearModule'
 
 const DEV = process.env.NODE_ENV === 'development'
 
 function startServer() {
   const server = http.createServer(async (req, res) =>
-    import('./middleware/render').then(({ renderMiddleware }) =>
-      renderMiddleware(req, res),
-    ),
+    import('./middleware/render')
+      .then(({ renderMiddleware }) => renderMiddleware(req, res))
+      .catch((err) => {
+        console.log(err)
+        res.write('Error happened, check logs')
+        res.end()
+      }),
   )
 
   server.on('error', (err) => console.error(err))
@@ -28,40 +33,63 @@ function startServer() {
 startServer()
 
 if (DEV) {
-  const reloadExtensions = ['.ts', '.css', '.sass', '.tsx']
-  const srcDir = path.resolve(process.cwd(), 'src')
-  const serverDir = path.resolve(process.cwd(), 'server/middleware')
-  const watcher = chokidar.watch([
-    `${path.resolve(process.cwd(), 'server/middleware')}/**/*`,
-  ])
-  const url = `ws://localhost:${DEV_SERVER_PORT}`
-  const ws = new WebSocket(url, 'esm-hmr')
+  let timeoutId: NodeJS.Timeout
 
-  watcher.on('change', (path) => {
-    clearModule.single(path)
-  })
+  const connectToHMR = async (poll = 100, timeout = 10000) => {
+    const url = `ws://localhost:${DEV_SERVER_PORT}`
 
-  ws.on('error', (error) => console.log(error))
-
-  ws.on('message', (data: string) => {
-    const parsed = JSON.parse(data)
-
-    if (parsed.type === 'reload') {
-      fg.sync(`${serverDir}/**/*`).forEach((file) => clearModule(file))
+    if (timeoutId) {
+      clearTimeout(timeoutId)
     }
 
-    if (parsed.type === 'update') {
-      const split = parsed.url.split('/_dist_/').join('')
-      const { name, dir } = path.parse(path.resolve(srcDir, split))
+    return new Promise<WebSocket>((resolve, reject) => {
+      const ws = new WebSocket(url, 'esm-hmr')
 
-      reloadExtensions.forEach((ext) => {
-        const match = path.resolve(dir, name + ext)
-        if (require.cache[match]) {
-          clearModule.single(match)
+      ws.on('error', (err: NodeJS.ErrnoException) => {
+        if (timeout <= 0) {
+          return reject(Error('Timeout ran out'))
+        }
+
+        if (err.code === 'ECONNREFUSED' && err.syscall === 'connect') {
+          timeoutId = setTimeout(
+            () => resolve(connectToHMR(poll, timeout - poll)),
+            100,
+          )
         }
       })
+      ws.on('open', () => resolve(ws))
+    })
+  }
 
-      fg.sync(`${serverDir}/**/*`).forEach((file) => clearModule.single(file))
-    }
-  })
+  connectToHMR(100, 10000)
+    .then((ws) => {
+      console.log('Connected to [esm-hmr]')
+      const reloadExtensions = ['.ts', '.tsx', '.css', '.sass', '.scss']
+      const srcDir = path.resolve(process.cwd(), 'src')
+      const serverDir = path.resolve(process.cwd(), 'server/middleware')
+      const watcher = chokidar.watch([
+        `${path.resolve(process.cwd(), 'server/middleware')}/**/*`,
+      ])
+      watcher.on('change', (path) => {
+        clearSingle(path)
+      })
+      ws.on('error', (error) => console.log(error))
+      ws.on('message', (data: string) => {
+        const parsed = JSON.parse(data)
+        if (parsed.type === 'reload') {
+          fg.sync(`${serverDir}/**/*`).forEach((file) => clear(file))
+        }
+        if (parsed.type === 'update') {
+          const split = parsed.url.split('/_dist_/').join('')
+          const { name, dir } = path.parse(path.resolve(srcDir, split))
+          reloadExtensions.forEach((ext) => {
+            const match = path.resolve(dir, name + ext)
+            clearAllButExternals(match)
+          })
+        }
+      })
+    })
+    .catch((err) => {
+      throw err
+    })
 }

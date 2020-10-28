@@ -7,3 +7,7 @@ Simple example showing Preact (can easily switch out to React) with SSR and Snow
 - `ts-node` for SSR code
 - Hot reloading on Server and Client, no need for `nodemon`
 - Fast Refresh
+
+## Commands
+
+`yarn dev` - Start development environment

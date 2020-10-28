@@ -61,17 +61,18 @@ if (DEV) {
     })
   }
 
-  const clearSet = new Set<string>()
+  const clientHMRQueue = new Set<string>()
 
   connectToHMR(100, 10000)
     .then((ws) => {
-      console.log('Connected to [esm-hmr]')
       const srcDir = path.resolve(process.cwd(), 'src')
       const serverDir = path.resolve(process.cwd(), 'server/middleware')
       const clientWatcher = chokidar.watch(`${srcDir}/**/*`)
       const serverWatcher = chokidar.watch(`${serverDir}/**/*`)
-      clientWatcher.on('change', (path) => clearSet.add(path))
+
+      clientWatcher.on('change', (path) => clientHMRQueue.add(path))
       serverWatcher.on('change', (path) => clearAllButExternals(path))
+
       ws.on('error', (error) => console.log(error))
       ws.on('message', (data: string) => {
         const parsed = JSON.parse(data)
@@ -80,8 +81,8 @@ if (DEV) {
           fg.sync(`${serverDir}/**/*`).forEach((file) => clear(file))
         }
         if (parsed.type === 'update') {
-          clearSet.forEach((item) => clearAllButExternals(item))
-          clearSet.clear()
+          clientHMRQueue.forEach((item) => clearAllButExternals(item))
+          clientHMRQueue.clear()
         }
       })
     })

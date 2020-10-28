@@ -6,7 +6,7 @@ import './App.css'
 
 export const App = () => (
   <h1>
-    Poop
+    Woah Buddy
     <Hello />
   </h1>
 )

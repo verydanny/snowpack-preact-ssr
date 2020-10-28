@@ -62,6 +62,7 @@ if (DEV) {
   }
 
   const clientHMRQueue = new Set<string>()
+  const totalHMRQueue = new Set<string>()
 
   connectToHMR(100, 10000)
     .then((ws) => {
@@ -70,15 +71,21 @@ if (DEV) {
       const clientWatcher = chokidar.watch(`${srcDir}/**/*`)
       const serverWatcher = chokidar.watch(`${serverDir}/**/*`)
 
-      clientWatcher.on('change', (path) => clientHMRQueue.add(path))
-      serverWatcher.on('change', (path) => clearAllButExternals(path))
+      clientWatcher.on('change', (path) => {
+        totalHMRQueue.add(path)
+        clientHMRQueue.add(path)
+      })
+      serverWatcher.on('change', (path) => {
+        totalHMRQueue.add(path)
+        clearAllButExternals(path)
+      })
 
       ws.on('error', (error) => console.log(error))
       ws.on('message', (data: string) => {
         const parsed = JSON.parse(data)
         if (parsed.type === 'reload') {
-          // Usually means client.tsx changed, but we'll reload just in case
-          fg.sync(`${serverDir}/**/*`).forEach((file) => clear(file))
+          totalHMRQueue.forEach((item) => clearAllButExternals(item))
+          totalHMRQueue.clear()
         }
         if (parsed.type === 'update') {
           clientHMRQueue.forEach((item) => clearAllButExternals(item))

@@ -134,10 +134,8 @@ export const clearAllButExternals = (moduleId: string) => {
       }
     }
 
-    return toClear.forEach((id: string) => {
-      console.log(`Hot reloading on Server: ${id}`)
+    console.log(`[hmr-server]: ${filePath} reloaded`)
 
-      delete require.cache[id]
-    })
+    return toClear.forEach((id: string) => delete require.cache[id])
   }
 }

@@ -22,14 +22,16 @@ export function renderMiddleware(req: IncomingMessage, res: ServerResponse) {
     const app = render(<App />)
 
     res.write(`
-      <html>
-      <head>
-          <link rel="canonical" url="${req.url}">
-          ${DEV ? SNOWPACK_HMR_SCRIPT : preloadTags}
-      </head>
-      <body>
-        <div id="root">${app}</div>
-      </body>`)
+    <!DOCTYPE html>
+    <html>
+    <head lang="en">
+      <meta charset="utf-8">
+      <link rel="canonical" url="${req.url}">
+      ${DEV ? SNOWPACK_HMR_SCRIPT : preloadTags}
+    </head>
+    <body>
+      <div id="root">${app}</div>
+    </body>`)
     res.write(DEV ? `${SNOWPACK_DEV_SCRIPT}</html>` : `${scriptTags}</html>`)
     res.end()
   }

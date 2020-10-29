@@ -16,24 +16,16 @@ const config = {
       },
     ],
   ],
-  install: [
-    //
-  ],
+  install: [],
   installOptions: {
     installTypes: true,
   },
   devOptions: {
     open: 'none',
   },
-  buildOptions: {
-    //
-  },
-  proxy: {
-    //
-  },
-  alias: {
-    //
-  },
+  buildOptions: {},
+  proxy: {},
+  alias: {},
 }
 
 export default config

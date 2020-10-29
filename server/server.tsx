@@ -2,13 +2,12 @@ import './extensionShim'
 import path from 'path'
 import http from 'http'
 
-import fg from 'fast-glob'
 import chokidar from 'chokidar'
 import WebSocket from 'ws'
 
 import { SERVER_PORT, DEV_SERVER_PORT } from '../src/const'
 
-import { clearSingle, clear, clearAllButExternals } from './utils/clearModule'
+import { clearAllButExternals } from './utils/clearModule'
 
 const DEV = process.env.NODE_ENV === 'development'
 
@@ -64,7 +63,7 @@ if (DEV) {
   const clientHMRQueue = new Set<string>()
   const totalHMRQueue = new Set<string>()
 
-  connectToHMR(100, 10000)
+  connectToHMR()
     .then((ws) => {
       const srcDir = path.resolve(process.cwd(), 'src')
       const serverDir = path.resolve(process.cwd(), 'server/middleware')

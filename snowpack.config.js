@@ -5,7 +5,6 @@ module.exports = {
   },
   plugins: [
     '@snowpack/plugin-babel',
-    '@snowpack/plugin-typescript',
     '@prefresh/snowpack',
     [
       '@snowpack/plugin-webpack',

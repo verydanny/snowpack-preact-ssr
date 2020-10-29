@@ -32,6 +32,7 @@
     "@types/ws": "^7.2.8",
     "chokidar": "^3.4.3",
     "concurrently": "^5.3.0",
+    "esbuild": "^0.8.0",
     "eslint": "^7.10.0",
     "jest": "^26.2.2",
     "parent-module": "^2.0.0",
@@ -50,6 +51,7 @@
   },
   "resolutions": {
     "@prefresh/babel-plugin": "^0.2.2",
-    "chokidar": "^3.4.3"
+    "chokidar": "^3.4.3",
+    "esbuild": "^0.8.0"
   }
 }

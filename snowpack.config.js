@@ -1,4 +1,4 @@
-const config = {
+module.exports = {
   mount: {
     public: '/',
     src: '/_dist_',
@@ -27,5 +27,3 @@ const config = {
   proxy: {},
   alias: {},
 }
-
-export default config

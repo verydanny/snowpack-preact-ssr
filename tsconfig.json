@@ -1,6 +1,5 @@
 {
   "include": ["src/**/*.ts", "src/**/*.tsx", "types/**/*", "server/**/*"],
-  "files": ["snowpack.config.ts"],
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
@@ -24,7 +23,7 @@
       {
         "name": "typescript-plugin-css-modules",
         "options": {
-          "customMatcher": "\\.css$"
+          "customMatcher": "\\.s?css$"
         }
       }
     ]

@@ -15,11 +15,11 @@ function startServer() {
   const server = http.createServer(async (req, res) =>
     import('./middleware/render')
       .then(({ renderMiddleware }) => renderMiddleware(req, res))
-      .catch((err) => {
-        console.log(err)
-        res.write('Error happened, check logs')
-        res.end()
-      }),
+      .catch(async (err: NodeJS.ErrnoException) =>
+        import('./middleware/error').then(({ errorMiddleware }) =>
+          errorMiddleware(req, res, err.stack ? err.stack : err.message),
+        ),
+      ),
   )
 
   server.on('error', (err) => console.error(err))

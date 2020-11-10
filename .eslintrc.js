@@ -3,6 +3,7 @@ module.exports = {
     'plugin:@torpedus/typescript',
     'plugin:@torpedus/typescript-tsconfig-checking',
     'plugin:@torpedus/node',
+    'eslint-config-preact',
     'plugin:@torpedus/prettier',
   ],
   parserOptions: {
@@ -29,7 +30,6 @@ module.exports = {
 
     // Node
     'node/no-extraneous-require': 'off',
-
     // TypeScript
     '@typescript-eslint/no-unnecessary-type-arguments': 'off',
     '@typescript-eslint/no-unnecessary-condition': 'off',

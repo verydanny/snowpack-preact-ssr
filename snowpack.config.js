@@ -23,5 +23,8 @@ module.exports = {
   },
   buildOptions: {},
   proxy: {},
-  alias: {},
+  alias: {
+    '@components': './src/components',
+    components: './src/components',
+  },
 }

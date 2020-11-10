@@ -1,14 +1,26 @@
 {
-  "include": ["src/**/*.ts", "src/**/*.tsx", "types/**/*", "server/**/*"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "types/**/*.ts",
+    "server/**/*.ts",
+    "server/**/*.tsx"
+  ],
+  "exclude": ["node_modules"],
   "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
     "module": "esnext",
-    "target": "esnext",
+    "target": "es2018",
     "moduleResolution": "node",
     "jsx": "preserve",
     "jsxFactory": "h",
-    "baseUrl": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@components*": ["src/components/*"],
+      "components*": ["src/components/*"]
+    },
     /* paths - If you configure Snowpack import aliases, add them here. */
-    "paths": {},
     /* noEmit - Snowpack builds (emits) files, not tsc. */
     "noEmit": true,
     /* Additional Options */

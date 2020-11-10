@@ -87,6 +87,7 @@ if (DEV) {
           totalHMRQueue.clear()
         }
         if (parsed.type === 'update') {
+          console.log(`Queue`, clientHMRQueue)
           clientHMRQueue.forEach((item) => clearAllButExternals(item))
           clientHMRQueue.clear()
         }
